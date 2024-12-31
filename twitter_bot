@@ -1,0 +1,85 @@
+import os
+import pdb
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import time
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from PIL import Image
+
+driver = webdriver.Chrome()
+driver.maximize_window()
+driver.get("http://twitter.com")
+
+wait = WebDriverWait(driver, 10)
+
+sign_in = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="react-root"]/div/div/div[2]/main/div/div/div[1]/div[1]/div/div[3]/div[4]/a/div/span')))
+sign_in.click()
+
+username = wait.until(EC.presence_of_element_located((By.XPATH, "//input[@name='text']")))
+username.send_keys('@KotnalaRagu')
+
+next_button = driver.find_element(By.XPATH,'//*[@id="layers"]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div/div/div/button[2]')
+next_button.click()
+
+#mail = wait.until(EC.presence_of_element_located((By.XPATH,"//input[@name='text']")))
+#mail.send_keys("kotnalaraghunadh@gmail.com")
+#mail.send_keys(Keys.ENTER)
+
+
+password = wait.until(EC.presence_of_element_located((By.XPATH, '//input[@name="password"]')))
+password.send_keys("Raghu7386@")
+password.send_keys(Keys.ENTER)
+
+notification_tab = wait.until(EC.presence_of_element_located((By.XPATH, "//a[@data-testid='AppTabBar_Notifications_Link']")))
+notification_tab.click()
+
+notifications = driver.find_elements(By.CLASS_NAME, "notification-item")  # Adjust the locator
+
+for notification in notifications:
+    if "X" in notification.text:  # Adjust the filter condition
+        notification.click()
+        break
+
+#first_message = wait.until(EC.presence_of_element_located((By.XPATH, "//article[@data-testid='notification']")))
+#first_message.click()
+
+time.sleep(5)
+wait.until(EC.presence_of_element_located((By.XPATH, "//div[@data-testid='User-Name']"))).click()
+
+# Wait for the page to load or element to appear before taking a screenshot
+time.sleep(3)
+
+# Capture the full screenshot
+screenshot_path = "full_screenshot.png"
+driver.save_screenshot(screenshot_path)
+
+image = Image.open(screenshot_path)
+
+left = 450
+top = 50
+right = 1275
+bottom = 672
+
+cropped_image = image.crop((left, top, right, bottom))
+
+cropped_image.save("cropped_screenshot.png")
+
+back=wait.until(EC.presence_of_element_located((By.XPATH,"//button[@aria-label='Back']")))
+back.click()
+
+reply=wait.until(EC.presence_of_element_located((By.XPATH,"//button[@data-testid='reply']")))
+reply.click()
+
+image_upload_button = wait.until(EC.presence_of_element_located((By.XPATH, "//input[@type='file']")))
+image_upload_button.send_keys(os.path.abspath("cropped_screenshot.png"))
+time.sleep(3)
+
+tweet_button = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="layers"]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[2]/div/div/div/div[2]/div[2]/div/div/div/button')))
+tweet_button.click()
+
+time.sleep(5)
+
+driver.quit()
+
